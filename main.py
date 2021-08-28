@@ -1,4 +1,4 @@
-# import db.connect
+import db.connect
 # from db.model import Site
 
 import sys
@@ -8,7 +8,7 @@ from PySide6.QtCore import QFile, QIODevice
 
 
 
-# conn = db.connect.Connect().get_session()
+conn = db.connect.Connect().get_session()
 
 
 if __name__ == "__main__":
