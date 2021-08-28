@@ -1,5 +1,5 @@
-import db.connect
-from db.model import Site
+# import db.connect
+# from db.model import Site
 
 import sys
 from PySide6.QtUiTools import QUiLoader
@@ -8,13 +8,13 @@ from PySide6.QtCore import QFile, QIODevice
 
 
 
-conn = db.connect.Connect().get_session()
+# conn = db.connect.Connect().get_session()
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
-    ui_file_name = "form.ui"
+    ui_file_name = "ui/form.ui"
     ui_file = QFile(ui_file_name)
     if not ui_file.open(QIODevice.ReadOnly):
         print(f"Cannot open {ui_file_name}: {ui_file.errorString()}")
