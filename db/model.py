@@ -152,5 +152,22 @@ class Defects(Base):
         return f'{self.id_tree}; {self.defect_info}; {self.defect_value}; {self.defect_age}'
 
 
+class Heights(Base):
+    __tablename__ = 'heights'
+
+    id = Column(Integer, primary_key=True)
+    diameter_med = Column(Integer)
+    height_tree = Column(Integer, nullable=False)
+    height_crown = Column(Integer)
+
+    def __init__(self, diameter_med, height_tree, height_crown):
+        self.diameter_med = diameter_med
+        self.height_tree = height_tree
+        self.height_crown = height_crown
+
+    def __repr__(self):
+        return f'{self.diameter_med}; {self.height_tree}; {self.height_crown}'
+
+
 # применим изменения
 Base.metadata.create_all(engine)

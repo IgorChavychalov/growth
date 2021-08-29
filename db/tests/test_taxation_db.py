@@ -1,5 +1,5 @@
 import sqlalchemy.orm
-from db.model import Base, Sites, Plots, Taxation, Species, Trees, Defects
+from db.model import Base, Sites, Plots, Taxation, Species, Trees, Defects, Heights
 from datetime import date
 
 
@@ -34,14 +34,21 @@ class TestInitBase:
         sp2 = Species(id_tax=2, species='Б', age=11, floor=1, step_level=1)
         sp3 = Species(id_tax=3, species='Б', age=13, floor=1, step_level=2)
         self.session.add_all([sp1, sp2, sp3])
-        # Запись в таблие Species для тестов
+        # Запись в таблие Trees для тестов
         tree1 = Trees(id_tax=1, id_plot=1, id_species=1, number_tree=1, kraft=4, diameter_one=62, diameter_two=64, diameter_med=63)
         tree2 = Trees(id_tax=1, id_plot=1, id_species=1, number_tree=2, kraft=3, diameter_one=82, diameter_two=84, diameter_med=83)
         tree3 = Trees(id_tax=3, id_plot=2, id_species=2, number_tree=3, kraft=2, diameter_one=102, diameter_two=104, diameter_med=103)
         tree4 = Trees(id_tax=1, id_plot=1, id_species=3, number_tree=4, kraft=1, diameter_one=122, diameter_two=124, diameter_med=123)
         self.session.add_all([tree1, tree2, tree3, tree4])
+        # Запись в таблие Defect для тестов
         defect = Defects(id_tree=2, defect_info='морозобоина', defect_value='3 см', defect_age=2010)
         self.session.add(defect)
+        # Запись в таблие Heights для тестов
+        height1 = Heights(diameter_med=63, height_tree=107, height_crown=80)
+        height2 = Heights(diameter_med=83, height_tree=127, height_crown=100)
+        height3 = Heights(diameter_med=103, height_tree=147, height_crown=120)
+        height4 = Heights(diameter_med=123, height_tree=167, height_crown=140)
+        self.session.add_all([height1, height2, height3, height4])
 
     def get_data_by_id(self, table, id):
         return self.session.query(table).filter(table.id == id).one()
@@ -79,6 +86,12 @@ class TestInitBase:
     def test_exist_data_in_defect_table(self):
         result = self.get_data_by_id(Defects, 1).__repr__()
         answer = '2; морозобоина; 3 см; 2010'
+
+        assert result == answer
+
+    def test_exist_data_in_height_table(self):
+        result = self.get_data_by_id(Heights, 3).__repr__()
+        answer = '103; 147; 120'
 
         assert result == answer
 
