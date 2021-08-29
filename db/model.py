@@ -19,18 +19,18 @@ class Sites(Base):
     vydel = Column(String)
     clearcut = Column(Integer)
     planting = Column(Integer)
-    thining = Column(Integer)
+    thinning = Column(Integer)
 
-    def __init__(self, forestry, kvartal, vydel, clearcut, planting, thining):
+    def __init__(self, forestry, kvartal, vydel, clearcut, planting, thinning):
         self.forestry = forestry
         self.kvartal = kvartal
         self.vydel = vydel
         self.clearcut = clearcut
         self.planting = planting
-        self.thining = thining
+        self.thinning = thinning
 
     def __repr__(self):
-        return f'{self.forestry}; {self.kvartal}; {self.vydel}; {self.clearcut}; {self.planting}; {self.thining}'
+        return f'{self.forestry}; {self.kvartal}; {self.vydel}; {self.clearcut}; {self.planting}; {self.thinning}'
 
 
 class Plots(Base):
@@ -43,8 +43,8 @@ class Plots(Base):
     number = Column(Integer, nullable=False)
     area = Column(Integer, nullable=False)
 
-    def __init__(self, site, TLU, forest_type, number, area):
-        self.id_site = site
+    def __init__(self, id_site, TLU, forest_type, number, area):
+        self.id_site = id_site
         self.TLU = TLU
         self.forest_type = forest_type
         self.number = number
@@ -82,6 +82,28 @@ class Taxation(Base):
     def __repr__(self):
         return f'{self.id_site}; {self.name}; {self.date}; {self.vegetation_year}; {self.age_after_cut}; {self.quantity_plots};' \
                f' {self.total_area}; {self.trans_coef}; {self.diameter_med}'
+
+
+class Species(Base):
+    __tablename__ = 'species'
+
+    id = Column(Integer, primary_key=True)
+    id_tax = Column(Integer, ForeignKey('taxation.id'))
+    species = Column(String, nullable=False)
+    age = Column(Integer)
+    floor = Column(Integer)
+    step_level = Column(Integer)
+
+    def __init__(self, id_tax, species, age, floor, step_level):
+        self.id_tax = id_tax
+        self.species = species
+        self.age = age
+        self.floor = floor
+        self.step_level = step_level
+
+    def __repr__(self):
+        return f'{self.id_tax}; {self.species}; {self.age}; {self.floor}; {self.step_level}'
+
 
 # применим изменения
 Base.metadata.create_all(engine)
