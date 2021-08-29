@@ -133,5 +133,24 @@ class Trees(Base):
                f' {self.diameter_one}; {self.diameter_two}; {self.diameter_med}'
 
 
+class Defects(Base):
+    __tablename__ = 'defects'
+
+    id = Column(Integer, primary_key=True)
+    id_tree = Column(Integer, ForeignKey('trees.id'))
+    defect_info = Column(String)
+    defect_value = Column(String)
+    defect_age = Column(Integer)
+
+    def __init__(self, id_tree, defect_info, defect_value, defect_age):
+        self.id_tree = id_tree
+        self.defect_info = defect_info
+        self.defect_value = defect_value
+        self.defect_age = defect_age
+
+    def __repr__(self):
+        return f'{self.id_tree}; {self.defect_info}; {self.defect_value}; {self.defect_age}'
+
+
 # применим изменения
 Base.metadata.create_all(engine)

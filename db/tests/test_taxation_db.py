@@ -1,5 +1,5 @@
 import sqlalchemy.orm
-from db.model import Base, Sites, Plots, Taxation, Species, Trees
+from db.model import Base, Sites, Plots, Taxation, Species, Trees, Defects
 from datetime import date
 
 
@@ -40,6 +40,8 @@ class TestInitBase:
         tree3 = Trees(id_tax=3, id_plot=2, id_species=2, number_tree=3, kraft=2, diameter_one=102, diameter_two=104, diameter_med=103)
         tree4 = Trees(id_tax=1, id_plot=1, id_species=3, number_tree=4, kraft=1, diameter_one=122, diameter_two=124, diameter_med=123)
         self.session.add_all([tree1, tree2, tree3, tree4])
+        defect = Defects(id_tree=2, defect_info='морозобоина', defect_value='3 см', defect_age=2010)
+        self.session.add(defect)
 
     def get_data_by_id(self, table, id):
         return self.session.query(table).filter(table.id == id).one()
@@ -70,7 +72,13 @@ class TestInitBase:
 
     def test_exist_data_in_trees_table(self):
         result = self.get_data_by_id(Trees, 4).__repr__()
-        answer = '1; 1; 1; 4; 1; 122; 124; 123'
+        answer = '1; 1; 3; 4; 1; 122; 124; 123'
+
+        assert result == answer
+
+    def test_exist_data_in_defect_table(self):
+        result = self.get_data_by_id(Defects, 1).__repr__()
+        answer = '2; морозобоина; 3 см; 2010'
 
         assert result == answer
 
@@ -108,4 +116,10 @@ class TestInitBase:
         answer = 11
         tree = self.get_data_by_id(Trees, 3)
         result = self.session.query(Species).filter(Species.id == tree.id_species).one().age
+        assert result == answer
+
+    def test_relation_defects_in_tree_table(self):
+        answer = 3
+        defect = self.get_data_by_id(Defects, 1)
+        result = self.session.query(Trees).filter(Trees.id == defect.id_tree).one().kraft
         assert result == answer
