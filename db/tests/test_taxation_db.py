@@ -1,5 +1,5 @@
 import sqlalchemy.orm
-from db.model import Base, Sites, Plots, Taxation, Species, Trees, Defects, Heights, Crowns
+from db.model import Base, Sites, Plots, Taxation, Species, Trees, Defects, Heights, Crowns, Models
 from datetime import date
 
 
@@ -55,6 +55,10 @@ class TestInitBase:
         crown3 = Crowns(length=100, north=20, south=20, west=20, east=20, diameter=40, area=314, volume=400)
         crown4 = Crowns(length=110, north=25, south=25, west=25, east=25, diameter=50, area=491, volume=500)
         self.session.add_all([crown1, crown2, crown3, crown4])
+        # Запись в таблие Models для тестов
+        model = Models(number=1, age=12, last_grw_length=100, last_grw_age=5, length_liquid=80, vol_wood=100,
+                       vol_wood_bk=105, vol_bark=5, vol_liquid=60)
+        self.session.add(model)
 
     def get_data_by_id(self, table, id):
         return self.session.query(table).filter(table.id == id).one()
@@ -89,31 +93,37 @@ class TestInitBase:
 
         assert result == answer
 
-    def test_exist_data_in_defect_table(self):
+    def test_exist_data_in_defects_table(self):
         result = self.get_data_by_id(Defects, 1).__repr__()
         answer = '2; морозобоина; 3 см; 2010'
 
         assert result == answer
 
-    def test_exist_data_in_height_table(self):
+    def test_exist_data_in_heights_table(self):
         result = self.get_data_by_id(Heights, 3).__repr__()
         answer = '103; 147; 120'
 
         assert result == answer
 
-    def test_exist_data_in_crown_table(self):
+    def test_exist_data_in_crowns_table(self):
         result = self.get_data_by_id(Crowns, 3).__repr__()
         answer = '100; 20; 20; 20; 20; 40; 314; 400'
 
         assert result == answer
 
-    def test_relation_plot_in_site_table(self):
+    def test_exist_data_in_models_table(self):
+        result = self.get_data_by_id(Models, 1).__repr__()
+        answer = '1; 12; 100; 5; 80; 100.0; 105.0; 5.0; 60.0'
+
+        assert result == answer
+
+    def test_relation_plots_in_sites_table(self):
         answer = 1
         plot = self.get_data_by_id(Plots, 3)
         result = self.session.query(Sites).filter(Sites.id == plot.id_site).one().id
         assert result == answer
 
-    def test_relation_taxation_in_site_table(self):
+    def test_relation_taxation_in_sites_table(self):
         answer = 2
         taxation = self.get_data_by_id(Taxation, 3)
         result = self.session.query(Sites).filter(Sites.id == taxation.id_site).one().id
@@ -143,7 +153,7 @@ class TestInitBase:
         result = self.session.query(Species).filter(Species.id == tree.id_species).one().age
         assert result == answer
 
-    def test_relation_defects_in_tree_table(self):
+    def test_relation_defects_in_trees_table(self):
         answer = 3
         defect = self.get_data_by_id(Defects, 1)
         result = self.session.query(Trees).filter(Trees.id == defect.id_tree).one().kraft

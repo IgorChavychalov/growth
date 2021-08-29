@@ -196,5 +196,36 @@ class Crowns(Base):
         return f'{self.length}; {self.north}; {self.south}; {self.west}; {self.east}; {self.diameter}; {self.area}; {self.volume}'
 
 
+class Models(Base):
+    __tablename__ = 'models'
+
+    id = Column(Integer, primary_key=True)
+    number = Column(Integer, nullable=False)
+    age = Column(Integer)
+    last_grw_length = Column(Integer)
+    last_grw_age = Column(Integer)
+    length_liquid = Column(Integer)
+    vol_wood = Column(Float)
+    vol_wood_bk = Column(Float)
+    vol_bark = Column(Float)
+    vol_liquid = Column(Float)
+
+    def __init__(self, number, age, last_grw_length, last_grw_age, length_liquid, vol_wood, vol_wood_bk, vol_bark, vol_liquid):
+        self.number = number
+        self.age = age
+        self.last_grw_length = last_grw_length
+        self.last_grw_age = last_grw_age
+        self.length_liquid = length_liquid
+        self.vol_wood = vol_wood
+        self.vol_wood_bk = vol_wood_bk
+        self.vol_bark = vol_bark
+        self.vol_liquid = vol_liquid
+
+    def __repr__(self):
+        return f'{self.number}; {self.age}; {self.last_grw_length}; {self.last_grw_age}; {self.length_liquid};' \
+               f' {self.vol_wood}; {self.vol_wood_bk}; {self.vol_bark}; {self.vol_liquid}'
+
+
+
 # применим изменения
 Base.metadata.create_all(engine)
