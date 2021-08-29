@@ -169,5 +169,32 @@ class Heights(Base):
         return f'{self.diameter_med}; {self.height_tree}; {self.height_crown}'
 
 
+class Crowns(Base):
+    __tablename__ = 'crowns'
+
+    id = Column(Integer, primary_key=True)
+    length = Column(Integer)
+    north = Column(Integer)
+    south = Column(Integer)
+    west = Column(Integer)
+    east = Column(Integer)
+    diameter = Column(Integer, nullable=False)
+    area = Column(Integer)
+    volume = Column(Integer)
+
+    def __init__(self, length, north, south, west, east, diameter, area, volume):
+        self.length = length
+        self.north = north
+        self.south = south
+        self.west = west
+        self.east = east
+        self.diameter = diameter
+        self.area = area
+        self.volume = volume
+
+    def __repr__(self):
+        return f'{self.length}; {self.north}; {self.south}; {self.west}; {self.east}; {self.diameter}; {self.area}; {self.volume}'
+
+
 # применим изменения
 Base.metadata.create_all(engine)

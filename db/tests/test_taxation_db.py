@@ -1,5 +1,5 @@
 import sqlalchemy.orm
-from db.model import Base, Sites, Plots, Taxation, Species, Trees, Defects, Heights
+from db.model import Base, Sites, Plots, Taxation, Species, Trees, Defects, Heights, Crowns
 from datetime import date
 
 
@@ -49,6 +49,12 @@ class TestInitBase:
         height3 = Heights(diameter_med=103, height_tree=147, height_crown=120)
         height4 = Heights(diameter_med=123, height_tree=167, height_crown=140)
         self.session.add_all([height1, height2, height3, height4])
+        # Запись в таблие Crowns для тестов
+        crown1 = Crowns(length=80, north=10, south=10, west=10, east=10, diameter=20, area=78, volume=200)
+        crown2 = Crowns(length=90, north=15, south=15, west=15, east=15, diameter=30, area=177, volume=300)
+        crown3 = Crowns(length=100, north=20, south=20, west=20, east=20, diameter=40, area=314, volume=400)
+        crown4 = Crowns(length=110, north=25, south=25, west=25, east=25, diameter=50, area=491, volume=500)
+        self.session.add_all([crown1, crown2, crown3, crown4])
 
     def get_data_by_id(self, table, id):
         return self.session.query(table).filter(table.id == id).one()
@@ -92,6 +98,12 @@ class TestInitBase:
     def test_exist_data_in_height_table(self):
         result = self.get_data_by_id(Heights, 3).__repr__()
         answer = '103; 147; 120'
+
+        assert result == answer
+
+    def test_exist_data_in_crown_table(self):
+        result = self.get_data_by_id(Crowns, 3).__repr__()
+        answer = '100; 20; 20; 20; 20; 40; 314; 400'
 
         assert result == answer
 
