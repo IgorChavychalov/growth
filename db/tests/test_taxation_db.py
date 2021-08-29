@@ -1,5 +1,5 @@
 import sqlalchemy.orm
-from db.model import Base, Sites, Plots, Taxation, Species, Trees, Defects, Heights, Crowns, Models
+from db.model import Base, Sites, Plots, Taxation, Species, Trees, Defects, Heights, Crowns, Models, Sections
 from datetime import date
 
 
@@ -56,9 +56,24 @@ class TestInitBase:
         crown4 = Crowns(length=110, north=25, south=25, west=25, east=25, diameter=50, area=491, volume=500)
         self.session.add_all([crown1, crown2, crown3, crown4])
         # Запись в таблие Models для тестов
-        model = Models(number=1, age=12, last_grw_length=100, last_grw_age=5, length_liquid=80, vol_wood=100,
+        model1 = Models(number=1, age=12, last_grw_length=100, last_grw_age=5, length_liquid=80, vol_wood=100,
                        vol_wood_bk=105, vol_bark=5, vol_liquid=60)
-        self.session.add(model)
+        model2 = Models(number=2, age=14, last_grw_length=100, last_grw_age=5, length_liquid=80, vol_wood=100,
+                       vol_wood_bk=105, vol_bark=5, vol_liquid=60)
+        self.session.add_all([model1, model2])
+        # Запись в таблие Sections для тестов
+        sec1 = Sections(id_model=2, section_relation=0, section_length=0, bark=False, diameter_sw=90, diameter_we=96, diameter_med=93, volume=100)
+        sec2 = Sections(id_model=2, section_relation=10, section_length=100, bark=False, diameter_sw=80, diameter_we=86, diameter_med=83, volume=90)
+        sec3 = Sections(id_model=2, section_relation=20, section_length=200, bark=False, diameter_sw=70, diameter_we=76, diameter_med=73, volume=80)
+        sec4 = Sections(id_model=2, section_relation=30, section_length=300, bark=False, diameter_sw=60, diameter_we=66, diameter_med=63, volume=70)
+        sec5 = Sections(id_model=2, section_relation=40, section_length=400, bark=False, diameter_sw=50, diameter_we=56, diameter_med=53, volume=60)
+        sec6 = Sections(id_model=2, section_relation=50, section_length=500, bark=False, diameter_sw=40, diameter_we=46, diameter_med=43, volume=50)
+        sec7 = Sections(id_model=2, section_relation=60, section_length=600, bark=False, diameter_sw=30, diameter_we=36, diameter_med=33, volume=40)
+        sec8 = Sections(id_model=2, section_relation=70, section_length=700, bark=False, diameter_sw=20, diameter_we=26, diameter_med=23, volume=30)
+        sec9 = Sections(id_model=2, section_relation=80, section_length=800, bark=False, diameter_sw=10, diameter_we=16, diameter_med=13, volume=20)
+        sec10 = Sections(id_model=2, section_relation=90, section_length=900, bark=False, diameter_sw=5, diameter_we=11, diameter_med=8, volume=10)
+        sec11 = Sections(id_model=2, section_relation=100, section_length=100, bark=False, diameter_sw=0, diameter_we=0, diameter_med=0, volume=1)
+        self.session.add_all([sec1, sec2, sec3, sec4, sec5, sec6, sec7, sec8, sec9, sec10, sec11])
 
     def get_data_by_id(self, table, id):
         return self.session.query(table).filter(table.id == id).one()
@@ -117,6 +132,12 @@ class TestInitBase:
 
         assert result == answer
 
+    def test_exist_data_in_sections_table(self):
+        result = self.get_data_by_id(Sections, 6).__repr__()
+        answer = '2; 50; 500; False; 40; 46; 43; 50.0'
+
+        assert result == answer
+
     def test_relation_plots_in_sites_table(self):
         answer = 1
         plot = self.get_data_by_id(Plots, 3)
@@ -157,4 +178,10 @@ class TestInitBase:
         answer = 3
         defect = self.get_data_by_id(Defects, 1)
         result = self.session.query(Trees).filter(Trees.id == defect.id_tree).one().kraft
+        assert result == answer
+
+    def test_relation_sections_in_models_table(self):
+        answer = 14
+        section = self.get_data_by_id(Sections, 1)
+        result = self.session.query(Models).filter(Models.id == section.id_model).one().age
         assert result == answer

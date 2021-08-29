@@ -1,6 +1,6 @@
 import os
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine, Column, Integer, String, Float, Date, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, Float, Date, ForeignKey, Boolean
 from sqlalchemy.orm import sessionmaker
 
 FOLDER = os.path.dirname(os.path.abspath(__file__))
@@ -225,6 +225,33 @@ class Models(Base):
         return f'{self.number}; {self.age}; {self.last_grw_length}; {self.last_grw_age}; {self.length_liquid};' \
                f' {self.vol_wood}; {self.vol_wood_bk}; {self.vol_bark}; {self.vol_liquid}'
 
+
+class Sections(Base):
+    __tablename__ = 'sections'
+
+    id = Column(Integer, primary_key=True)
+    id_model = Column(Integer, ForeignKey('models.id'))
+    section_relation = Column(Integer, nullable=False)
+    section_length = Column(Integer, nullable=False)
+    bark = Column(Boolean, nullable=False)
+    diameter_sw = Column(Integer, nullable=False)
+    diameter_we = Column(Integer, nullable=False)
+    diameter_med = Column(Integer)
+    volume = Column(Float)
+
+    def __init__(self, id_model, section_relation, section_length, bark, diameter_sw, diameter_we, diameter_med, volume):
+        self.id_model = id_model
+        self.section_relation = section_relation
+        self.section_length = section_length
+        self.bark = bark
+        self.diameter_sw = diameter_sw
+        self.diameter_we = diameter_we
+        self.diameter_med = diameter_med
+        self.volume = volume
+
+    def __repr__(self):
+        return f'{self.id_model}; {self.section_relation}; {self.section_length}; {self.bark}; {self.diameter_sw};' \
+               f' {self.diameter_we}; {self.diameter_med}; {self.volume}'
 
 
 # применим изменения
