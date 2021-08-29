@@ -105,5 +105,33 @@ class Species(Base):
         return f'{self.id_tax}; {self.species}; {self.age}; {self.floor}; {self.step_level}'
 
 
+class Trees(Base):
+    __tablename__ = 'trees'
+
+    id = Column(Integer, primary_key=True)
+    id_tax = Column(Integer, ForeignKey('taxation.id'))
+    id_plot = Column(Integer, ForeignKey('plots.id'))
+    id_species = Column(Integer, ForeignKey('species.id'))
+    number_tree = Column(Integer)
+    kraft = Column(Integer)
+    diameter_one = Column(Integer)
+    diameter_two = Column(Integer)
+    diameter_med = Column(Integer)
+
+    def __init__(self, id_tax, id_plot, id_species, number_tree, kraft, diameter_one, diameter_two, diameter_med):
+        self.id_tax = id_tax
+        self.id_plot = id_plot
+        self.id_species = id_species
+        self.number_tree = number_tree
+        self.kraft = kraft
+        self.diameter_one = diameter_one
+        self.diameter_two = diameter_two
+        self.diameter_med = diameter_med
+
+    def __repr__(self):
+        return f'{self.id_tax}; {self.id_plot}; {self.id_species}; {self.number_tree}; {self.kraft};' \
+               f' {self.diameter_one}; {self.diameter_two}; {self.diameter_med}'
+
+
 # применим изменения
 Base.metadata.create_all(engine)
