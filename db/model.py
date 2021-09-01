@@ -254,5 +254,33 @@ class Sections(Base):
                f' {self.diameter_we}; {self.diameter_med}; {self.volume}'
 
 
+class Relations(Base):
+    __tablename__ = 'relations'
+
+    id = Column(Integer, primary_key=True)
+    id_tree = Column(Integer, ForeignKey('trees.id'))
+    id_model = Column(Integer, ForeignKey('models.id'))
+    id_species = Column(Integer, ForeignKey('species.id'))
+    id_height = Column(Integer, ForeignKey('heights.id'))
+    id_crown = Column(Integer, ForeignKey('crowns.id'))
+    id_plot = Column(Integer, ForeignKey('plots.id'))
+    kraft = Column(Integer, nullable=False)
+    step = Column(Integer)
+
+    def __init__(self, id_tree, id_model, id_species, id_height, id_crown, id_plot, kraft, step):
+        self.id_tree = id_tree
+        self.id_model = id_model
+        self.id_species = id_species
+        self.id_height = id_height
+        self.id_crown = id_crown
+        self.id_plot = id_plot
+        self.kraft = kraft
+        self.step = step
+
+    def __repr__(self):
+        return f'{self.id_tree}; {self.id_model}; {self.id_species}; {self.id_height}; {self.id_crown}; {self.id_plot};' \
+               f' {self.kraft}; {self.step}'
+
+
 # применим изменения
 Base.metadata.create_all(engine)

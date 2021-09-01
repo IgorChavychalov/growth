@@ -1,5 +1,5 @@
 import sqlalchemy.orm
-from db.model import Base, Sites, Plots, Taxation, Species, Trees, Defects, Heights, Crowns, Models, Sections
+from db.model import Base, Sites, Plots, Taxation, Species, Trees, Defects, Heights, Crowns, Models, Sections, Relations
 from datetime import date
 
 
@@ -48,13 +48,17 @@ class TestInitBase:
         height2 = Heights(diameter_med=83, height_tree=127, height_crown=100)
         height3 = Heights(diameter_med=103, height_tree=147, height_crown=120)
         height4 = Heights(diameter_med=123, height_tree=167, height_crown=140)
-        self.session.add_all([height1, height2, height3, height4])
+        height5 = Heights(diameter_med=80, height_tree=157, height_crown=130)
+        height6 = Heights(diameter_med=98, height_tree=167, height_crown=135)
+        self.session.add_all([height1, height2, height3, height4, height5, height6])
         # Запись в таблие Crowns для тестов
         crown1 = Crowns(length=80, north=10, south=10, west=10, east=10, diameter=20, area=78, volume=200)
         crown2 = Crowns(length=90, north=15, south=15, west=15, east=15, diameter=30, area=177, volume=300)
         crown3 = Crowns(length=100, north=20, south=20, west=20, east=20, diameter=40, area=314, volume=400)
         crown4 = Crowns(length=110, north=25, south=25, west=25, east=25, diameter=50, area=491, volume=500)
-        self.session.add_all([crown1, crown2, crown3, crown4])
+        crown5 = Crowns(length=120, north=20, south=20, west=20, east=20, diameter=40, area=314, volume=400)
+        crown6 = Crowns(length=125, north=25, south=25, west=25, east=25, diameter=50, area=491, volume=500)
+        self.session.add_all([crown1, crown2, crown3, crown4, crown5, crown6])
         # Запись в таблие Models для тестов
         model1 = Models(number=1, age=12, last_grw_length=100, last_grw_age=5, length_liquid=80, vol_wood=100,
                        vol_wood_bk=105, vol_bark=5, vol_liquid=60)
@@ -74,6 +78,15 @@ class TestInitBase:
         sec10 = Sections(id_model=2, section_relation=90, section_length=900, bark=False, diameter_sw=5, diameter_we=11, diameter_med=8, volume=10)
         sec11 = Sections(id_model=2, section_relation=100, section_length=100, bark=False, diameter_sw=0, diameter_we=0, diameter_med=0, volume=1)
         self.session.add_all([sec1, sec2, sec3, sec4, sec5, sec6, sec7, sec8, sec9, sec10, sec11])
+        # Запись в таблие Relations для тестов
+        rel1 = Relations(id_tree=1, id_model=0, id_species=1, id_height=1, id_crown=1, id_plot=1, kraft=4, step=6)
+        rel2 = Relations(id_tree=2, id_model=0, id_species=1, id_height=2, id_crown=2, id_plot=1, kraft=3, step=8)
+        rel3 = Relations(id_tree=3, id_model=0, id_species=2, id_height=3, id_crown=3, id_plot=2, kraft=2, step=10)
+        rel4 = Relations(id_tree=4, id_model=0, id_species=3, id_height=4, id_crown=4, id_plot=1, kraft=1, step=12)
+        rel5 = Relations(id_tree=None, id_model=1, id_species=2, id_height=5, id_crown=5, id_plot=1, kraft=1, step=8)
+        rel6 = Relations(id_tree=None, id_model=2, id_species=2, id_height=6, id_crown=6, id_plot=1, kraft=1, step=10)
+
+        self.session.add_all([rel1, rel2, rel3, rel4, rel5, rel6])
 
     def get_data_by_id(self, table, id):
         return self.session.query(table).filter(table.id == id).one()
@@ -115,8 +128,8 @@ class TestInitBase:
         assert result == answer
 
     def test_exist_data_in_heights_table(self):
-        result = self.get_data_by_id(Heights, 3).__repr__()
-        answer = '103; 147; 120'
+        result = self.get_data_by_id(Heights, 2).__repr__()
+        answer = '83; 127; 100'
 
         assert result == answer
 
@@ -135,6 +148,18 @@ class TestInitBase:
     def test_exist_data_in_sections_table(self):
         result = self.get_data_by_id(Sections, 6).__repr__()
         answer = '2; 50; 500; False; 40; 46; 43; 50.0'
+
+        assert result == answer
+
+    def test_exist_tree_in_relations_table(self):
+        result = self.get_data_by_id(Relations, 2).__repr__()
+        answer = '2; 0; 1; 2; 2; 1; 3; 8'
+
+        assert result == answer
+
+    def test_exist_model_in_relations_table(self):
+        result = self.get_data_by_id(Relations, 6).__repr__()
+        answer = 'None; 2; 2; 6; 6; 1; 1; 10'
 
         assert result == answer
 
@@ -184,4 +209,40 @@ class TestInitBase:
         answer = 14
         section = self.get_data_by_id(Sections, 1)
         result = self.session.query(Models).filter(Models.id == section.id_model).one().age
+        assert result == answer
+
+    def test_relation_relations_in_trees_table(self):
+        answer = 4
+        relation = self.get_data_by_id(Relations, 1)
+        result = self.session.query(Trees).filter(Trees.id == relation.id_tree).one().kraft
+        assert result == answer
+
+    def test_relation_relations_in_model_table(self):
+        answer = 14
+        relation = self.get_data_by_id(Relations, 6)
+        result = self.session.query(Models).filter(Models.id == relation.id_model).one().age
+        assert result == answer
+
+    def test_relation_relations_in_species_table(self):
+        answer = 10
+        relation = self.get_data_by_id(Relations, 2)
+        result = self.session.query(Species).filter(Species.id == relation.id_species).one().age
+        assert result == answer
+
+    def test_relation_relations_in_heights_table(self):
+        answer = 127
+        relation = self.get_data_by_id(Relations, 2)
+        result = self.session.query(Heights).filter(Heights.id == relation.id_height).one().height_tree
+        assert result == answer
+
+    def test_relation_relations_in_crown_table(self):
+        answer = 90
+        relation = self.get_data_by_id(Relations, 2)
+        result = self.session.query(Crowns).filter(Crowns.id == relation.id_crown).one().length
+        assert result == answer
+
+    def test_relation_relations_in_plot_table(self):
+        answer = 'В2'
+        relation =  self.get_data_by_id(Relations, 2)
+        result = self.session.query(Plots).filter(Plots.id == relation.id_plot).one().TLU
         assert result == answer
