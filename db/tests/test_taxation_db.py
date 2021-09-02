@@ -3,7 +3,7 @@ from db.model import Base, Sites, Plots, Taxation, Species, Trees, Defects, Heig
 from datetime import date
 
 
-class TestInitBase:
+class SetupBase:
     def setup(self):
         # Создаём суслика
         engine = sqlalchemy.create_engine(f'sqlite:///:memory:', echo=False)
@@ -85,83 +85,92 @@ class TestInitBase:
         rel4 = Relations(id_tree=4, id_model=0, id_species=3, id_height=4, id_crown=4, id_plot=1, kraft=1, step=12)
         rel5 = Relations(id_tree=None, id_model=1, id_species=2, id_height=5, id_crown=5, id_plot=1, kraft=1, step=8)
         rel6 = Relations(id_tree=None, id_model=2, id_species=2, id_height=6, id_crown=6, id_plot=1, kraft=1, step=10)
-
         self.session.add_all([rel1, rel2, rel3, rel4, rel5, rel6])
 
     def get_data_by_id(self, table, id):
         return self.session.query(table).filter(table.id == id).one()
 
-    def test_exist_data_in_sites_table(self):
+
+class TestInitTable(SetupBase):
+    def get_data_by_id(self, table, id):
+        return super(TestInitTable, self).get_data_by_id(table, id)
+
+    def test_init_data_in_sites_table(self):
         result = self.get_data_by_id(Sites, 1).__repr__()
         answer = 'Сяськое; 184; 10; 2000; 2001; 2010'
 
         assert result == answer
 
-    def test_exist_data_in_plots_table(self):
+    def test_init_data_in_plots_table(self):
         result = self.get_data_by_id(Plots, 1).__repr__()
         answer = '1; В2; ЧС; 1; 600'
 
         assert result == answer
 
-    def test_exist_data_in_taxation_table(self):
+    def test_init_data_in_taxation_table(self):
         result = self.get_data_by_id(Taxation, 2).__repr__()
         answer = '2; после рубки; 2010-02-10; 2010; 0; 3; 1800; 5.555556; 79'
 
         assert result == answer
 
-    def test_exist_data_in_species_table(self):
+    def test_init_data_in_species_table(self):
         result = self.get_data_by_id(Species, 3).__repr__()
         answer = '3; Б; 13; 1; 2'
 
         assert result == answer
 
-    def test_exist_data_in_trees_table(self):
+    def test_init_data_in_trees_table(self):
         result = self.get_data_by_id(Trees, 4).__repr__()
         answer = '1; 1; 3; 4; 1; 122; 124; 123'
 
         assert result == answer
 
-    def test_exist_data_in_defects_table(self):
+    def test_init_data_in_defects_table(self):
         result = self.get_data_by_id(Defects, 1).__repr__()
         answer = '2; морозобоина; 3 см; 2010'
 
         assert result == answer
 
-    def test_exist_data_in_heights_table(self):
+    def test_init_data_in_heights_table(self):
         result = self.get_data_by_id(Heights, 2).__repr__()
         answer = '83; 127; 100'
 
         assert result == answer
 
-    def test_exist_data_in_crowns_table(self):
+    def test_init_data_in_crowns_table(self):
         result = self.get_data_by_id(Crowns, 3).__repr__()
         answer = '100; 20; 20; 20; 20; 40; 314; 400'
 
         assert result == answer
 
-    def test_exist_data_in_models_table(self):
+    def test_init_data_in_models_table(self):
         result = self.get_data_by_id(Models, 1).__repr__()
         answer = '1; 12; 100; 5; 80; 100.0; 105.0; 5.0; 60.0'
 
         assert result == answer
 
-    def test_exist_data_in_sections_table(self):
+    def test_init_data_in_sections_table(self):
         result = self.get_data_by_id(Sections, 6).__repr__()
         answer = '2; 50; 500; False; 40; 46; 43; 50.0'
 
         assert result == answer
 
-    def test_exist_tree_in_relations_table(self):
+    def test_init_tree_in_relations_table(self):
         result = self.get_data_by_id(Relations, 2).__repr__()
         answer = '2; 0; 1; 2; 2; 1; 3; 8'
 
         assert result == answer
 
-    def test_exist_model_in_relations_table(self):
+    def test_init_model_in_relations_table(self):
         result = self.get_data_by_id(Relations, 6).__repr__()
         answer = 'None; 2; 2; 6; 6; 1; 1; 10'
 
         assert result == answer
+
+
+class TestRelations(SetupBase):
+    def get_data_by_id(self, table, id):
+        return super(TestRelations, self).get_data_by_id(table, id)
 
     def test_relation_plots_in_sites_table(self):
         answer = 1
@@ -243,6 +252,7 @@ class TestInitBase:
 
     def test_relation_relations_in_plot_table(self):
         answer = 'В2'
-        relation =  self.get_data_by_id(Relations, 2)
+        relation = self.get_data_by_id(Relations, 2)
         result = self.session.query(Plots).filter(Plots.id == relation.id_plot).one().TLU
         assert result == answer
+
