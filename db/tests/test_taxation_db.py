@@ -41,7 +41,7 @@ class SetupBase:
         tree4 = Trees(id_tax=1, id_plot=1, id_species=3, number_tree=4, kraft=1, diameter_one=122, diameter_two=124, diameter_med=123)
         self.session.add_all([tree1, tree2, tree3, tree4])
         # Запись в таблие Defect для тестов
-        defect = Defects(id_tree=2, defect_info='морозобоина', defect_value='3 см', defect_age=2010)
+        defect = Defects(id_tree=2, info='морозобоина', value='3 см', age=2010)
         self.session.add(defect)
         # Запись в таблие Heights для тестов
         height1 = Heights(diameter_med=63, height_tree=107, height_crown=80)
@@ -256,3 +256,181 @@ class TestRelations(SetupBase):
         result = self.session.query(Plots).filter(Plots.id == relation.id_plot).one().TLU
         assert result == answer
 
+
+class TestFirstID(SetupBase):
+    def first_id(self, table):
+        return self.session.query(table).all()[0].id
+
+    def test_first_id_sites(self):
+        answer = 1
+        result = self.first_id(Sites)
+        assert result == answer
+
+    def test_first_id_plots(self):
+        answer = 1
+        result = self.first_id(Plots)
+        assert result == answer
+
+    def test_first_id_taxation(self):
+        answer = 1
+        result = self.first_id(Taxation)
+        assert result == answer
+
+    def test_first_id_species(self):
+        answer = 1
+        result = self.first_id(Species)
+        assert result == answer
+
+    def test_first_id_trees(self):
+        answer = 1
+        result = self.first_id(Trees)
+        assert result == answer
+
+    def test_first_id_defects(self):
+        answer = 1
+        result = self.first_id(Defects)
+        assert result == answer
+
+    def test_first_id_heights(self):
+        answer = 1
+        result = self.first_id(Heights)
+        assert result == answer
+
+    def test_first_id_crowns(self):
+        answer = 1
+        result = self.first_id(Crowns)
+        assert result == answer
+
+    def test_first_id_models(self):
+        answer = 1
+        result = self.first_id(Models)
+        assert result == answer
+
+    def test_first_id_sections(self):
+        answer = 1
+        result = self.first_id(Sections)
+        assert result == answer
+
+    def test_first_id_relations(self):
+        answer = 1
+        result = self.first_id(Relations)
+        assert result == answer
+
+
+class TestRelationShep(SetupBase):
+    def get_data_by_id(self, table, id):
+        return super(TestRelationShep, self).get_data_by_id(table, id)
+
+    def test_plots_to_site(self):
+        answer = 184
+        plot = self.get_data_by_id(Plots, 1)
+        result = plot.site.kvartal
+        assert result == answer
+
+    def test_site_to_plots(self):
+        answer = "В4"
+        site = self.get_data_by_id(Sites, 1)
+        result = site.plot[2].TLU
+        assert result == answer
+
+    def test_site_to_taxation(self):
+        answer = "3 года после рубки"
+        site = self.get_data_by_id(Sites, 2)
+        result = site.taxation[2].name
+        assert result == answer
+
+    def test_taxation_to_site(self):
+        answer = 77
+        tax = self.get_data_by_id(Taxation, 2)
+        result = tax.site.kvartal
+        assert result == answer
+
+    def test_taxation_to_species(self):
+        answer = 13
+        tax = self.get_data_by_id(Taxation, 3)
+        result = tax.species[0].age
+        assert result == answer
+
+    def test_taxation_to_trees(self):
+        answer = 2
+        tax = self.get_data_by_id(Taxation, 3)
+        result = tax.tree[0].kraft
+        assert result == answer
+
+    def test_trees_to_taxation(self):
+        answer = "3 года после рубки"
+        tree = self.get_data_by_id(Trees, 3)
+        result = tree.taxation.name
+        assert result == answer
+
+    def test_trees_to_plot(self):
+        answer = "С2"
+        tree = self.get_data_by_id(Trees, 3)
+        result = tree.plot.TLU
+        assert result == answer
+
+    def test_trees_to_species(self):
+        answer = 11
+        tree = self.get_data_by_id(Trees, 3)
+        result = tree.species.age
+        assert result == answer
+
+    def test_trees_to_defects(self):
+        answer = "морозобоина"
+        tree = self.get_data_by_id(Trees, 2)
+        result = tree.defect[0].info
+        assert result == answer
+
+    def test_defects_to_trees(self):
+        answer = 3
+        defect = self.get_data_by_id(Defects, 1)
+        result = defect.tree.kraft
+        assert result == answer
+
+    def test_sections_to_models(self):
+        answer = 14
+        section = self.get_data_by_id(Sections, 1)
+        result = section.model.age
+        assert result == answer
+
+    def test_models_to_sections(self):
+        answer = 100
+        model = self.get_data_by_id(Models, 2)
+        result = model.section[-1].section_relation
+        assert result == answer
+
+    def test_relations_to_tree(self):
+        answer = 4
+        rel = self.get_data_by_id(Relations, 1)
+        result = rel.tree.kraft
+        assert result == answer
+
+    def test_relations_to_model(self):
+        answer = 14
+        rel = self.get_data_by_id(Relations, 6)
+        result = rel.model.age
+        assert result == answer
+
+    def test_relations_to_species(self):
+        answer = 11
+        rel = self.get_data_by_id(Relations, 6)
+        result = rel.species.age
+        assert result == answer
+
+    def test_relations_to_heights(self):
+        answer = 167
+        rel = self.get_data_by_id(Relations, 6)
+        result = rel.height.height_tree
+        assert result == answer
+
+    def test_relations_to_crowns(self):
+        answer = 125
+        rel = self.get_data_by_id(Relations, 6)
+        result = rel.crown.length
+        assert result == answer
+
+    def test_relations_to_plots(self):
+        answer = 'В2'
+        rel = self.get_data_by_id(Relations, 4)
+        result = rel.plot.TLU
+        assert result == answer

@@ -1,7 +1,7 @@
 import os
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, Column, Integer, String, Float, Date, ForeignKey, Boolean
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import relationship
 
 FOLDER = os.path.dirname(os.path.abspath(__file__))
 PATH = os.path.join(FOLDER, 'growth.db')
@@ -38,6 +38,9 @@ class Plots(Base):
 
     id = Column(Integer, primary_key=True)
     id_site = Column(Integer, ForeignKey('sites.id'))
+    site = relationship("Sites", backref="plot")
+    relation = relationship("Relations", backref="plot")
+
     TLU = Column(String)
     forest_type = Column(String)
     number = Column(Integer, nullable=False)
@@ -59,6 +62,8 @@ class Taxation(Base):
 
     id = Column(Integer, primary_key=True)
     id_site = Column(Integer, ForeignKey('sites.id'))
+    site = relationship("Sites", backref="taxation")
+
     name = Column(String, nullable=False)
     date = Column(Date, nullable=False)
     vegetation_year = Column(Integer)
@@ -89,6 +94,9 @@ class Species(Base):
 
     id = Column(Integer, primary_key=True)
     id_tax = Column(Integer, ForeignKey('taxation.id'))
+    taxation = relationship("Taxation", backref="species")
+    relation = relationship("Relations", backref="species")
+
     species = Column(String, nullable=False)
     age = Column(Integer)
     floor = Column(Integer)
@@ -112,6 +120,11 @@ class Trees(Base):
     id_tax = Column(Integer, ForeignKey('taxation.id'))
     id_plot = Column(Integer, ForeignKey('plots.id'))
     id_species = Column(Integer, ForeignKey('species.id'))
+    taxation = relationship("Taxation", backref="tree")
+    plot = relationship("Plots", backref="tree")
+    species = relationship("Species", backref="tree")
+    relation = relationship("Relations", backref="tree")
+
     number_tree = Column(Integer)
     kraft = Column(Integer)
     diameter_one = Column(Integer)
@@ -138,24 +151,28 @@ class Defects(Base):
 
     id = Column(Integer, primary_key=True)
     id_tree = Column(Integer, ForeignKey('trees.id'))
-    defect_info = Column(String)
-    defect_value = Column(String)
-    defect_age = Column(Integer)
+    tree = relationship("Trees", backref="defect")
 
-    def __init__(self, id_tree, defect_info, defect_value, defect_age):
+    info = Column(String)
+    value = Column(String)
+    age = Column(Integer)
+
+    def __init__(self, id_tree, info, value, age):
         self.id_tree = id_tree
-        self.defect_info = defect_info
-        self.defect_value = defect_value
-        self.defect_age = defect_age
+        self.info = info
+        self.value = value
+        self.age = age
 
     def __repr__(self):
-        return f'{self.id_tree}; {self.defect_info}; {self.defect_value}; {self.defect_age}'
+        return f'{self.id_tree}; {self.info}; {self.value}; {self.age}'
 
 
 class Heights(Base):
     __tablename__ = 'heights'
 
     id = Column(Integer, primary_key=True)
+    relation = relationship("Relations", backref="height")
+
     diameter_med = Column(Integer)
     height_tree = Column(Integer, nullable=False)
     height_crown = Column(Integer)
@@ -173,6 +190,8 @@ class Crowns(Base):
     __tablename__ = 'crowns'
 
     id = Column(Integer, primary_key=True)
+    relation = relationship("Relations", backref="crown")
+
     length = Column(Integer)
     north = Column(Integer)
     south = Column(Integer)
@@ -200,6 +219,8 @@ class Models(Base):
     __tablename__ = 'models'
 
     id = Column(Integer, primary_key=True)
+    relation = relationship("Relations", backref="model")
+
     number = Column(Integer, nullable=False)
     age = Column(Integer)
     last_grw_length = Column(Integer)
@@ -231,6 +252,8 @@ class Sections(Base):
 
     id = Column(Integer, primary_key=True)
     id_model = Column(Integer, ForeignKey('models.id'))
+    model = relationship("Models", backref="section")
+
     section_relation = Column(Integer, nullable=False)
     section_length = Column(Integer, nullable=False)
     bark = Column(Boolean, nullable=False)
@@ -264,6 +287,7 @@ class Relations(Base):
     id_height = Column(Integer, ForeignKey('heights.id'))
     id_crown = Column(Integer, ForeignKey('crowns.id'))
     id_plot = Column(Integer, ForeignKey('plots.id'))
+
     kraft = Column(Integer, nullable=False)
     step = Column(Integer)
 
