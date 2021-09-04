@@ -13,8 +13,8 @@ class SetupBase:
 
         self.session = session
         # Запись в таблие Site для тестов
-        site1 = Sites(forestry='Сяськое', kvartal='184', vydel='10', clearcut=2000, planting=2001, thinning=2010)
-        site2 = Sites(forestry='Сяськое', kvartal='77', vydel='1', clearcut=2000, planting=2001, thinning=2010)
+        site1 = Sites(forestry='Сяськое', kvartal=184, vydel='10', clearcut=2000, planting=2001, thinning=2010)
+        site2 = Sites(forestry='Сяськое', kvartal=77, vydel='1', clearcut=2000, planting=2001, thinning=2010)
         self.session.add_all([site1, site2])
         # Запись в таблие Plots для тестов
         plot1 = Plots(id_site=1, TLU='В2', forest_type='ЧС', number=1, area=600)

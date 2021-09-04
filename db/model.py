@@ -1,4 +1,6 @@
 import os
+
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, Column, Integer, String, Float, Date, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
