@@ -29,7 +29,14 @@ class SitesQuery:
             self.session.rollback()
 
     def update(self, id, kwargs):
-        self.session.query(Sites).filter(Sites.id == id).update(kwargs, synchronize_session='fetch')
-        self.session.commit()
+        try:
+            self.session.query(Sites).filter(Sites.id == id).update(kwargs, synchronize_session='fetch')
+            self.session.commit()
+        except IntegrityError:
+            self.session.rollback()
 
-
+    def get_all(self):
+        try:
+            return self.session.query(Sites).all()
+        except IntegrityError:
+            self.session.rollback()

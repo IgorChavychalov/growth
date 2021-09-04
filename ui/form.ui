@@ -13,6 +13,39 @@
   <property name="windowTitle">
    <string>main</string>
   </property>
+  <widget class="QTableWidget" name="tableWidget">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>120</y>
+     <width>311</width>
+     <height>201</height>
+    </rect>
+   </property>
+   <property name="columnCount">
+    <number>3</number>
+   </property>
+   <column>
+    <property name="text">
+     <string>Лесничество</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>Квартал</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>Участок</string>
+    </property>
+    <property name="font">
+     <font>
+      <kerning>true</kerning>
+     </font>
+    </property>
+   </column>
+  </widget>
  </widget>
  <resources/>
  <connections/>
