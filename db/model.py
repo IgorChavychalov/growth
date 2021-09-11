@@ -22,6 +22,8 @@ class Sites(Base):
     clearcut = Column(Integer)
     planting = Column(Integer)
     thinning = Column(Integer)
+    quantity_plots = Column(Integer, nullable=True)
+    last_tax = Column(Integer, nullable=True)
 
     def __init__(self, forestry, kvartal, vydel, clearcut, planting, thinning):
         self.forestry = forestry
@@ -30,9 +32,15 @@ class Sites(Base):
         self.clearcut = clearcut
         self.planting = planting
         self.thinning = thinning
+        self.quantity_plots = 0
+        self.last_tax = 0
 
     def __repr__(self):
-        return f'{self.forestry}; {self.kvartal}; {self.vydel}; {self.clearcut}; {self.planting}; {self.thinning}'
+        return f'{self.forestry}; {self.kvartal}; {self.vydel}; {self.clearcut}; {self.planting}; {self.thinning};' \
+               f' {self.quantity_plots}; {self.last_tax}'
+
+    def __str__(self):
+        return [self.forestry, self.kvartal, self.vydel, self.clearcut, self.planting, self.thinning, self.quantity_plots, self.last_tax]
 
 
 class Plots(Base):

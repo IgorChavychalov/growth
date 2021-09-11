@@ -4,7 +4,7 @@ from datetime import date
 from db.query import SitesQuery
 
 
-class SetupBase:
+class ClearBase:
     def setup(self):
         # Создаём суслика
         engine = sqlalchemy.create_engine(f'sqlite:///:memory:', echo=False)
@@ -18,10 +18,10 @@ class SetupBase:
         return self.session.query(table).filter(table.id == id).one()
 
 
-class TestSiteQuery(SetupBase):
+class TestSiteCRUD(ClearBase):
 
     def get_data_by_id(self, id, table=Sites):
-        return super(TestSiteQuery, self).get_data_by_id(table, id)
+        return super(TestSiteCRUD, self).get_data_by_id(table, id)
 
     def test_create(self):
         args = ['Сяськое', 184, '10', 2000, 2001, 2010]
@@ -57,3 +57,4 @@ class TestSiteQuery(SetupBase):
         result = self.sites_query.read(2).forestry
         answer = 'Шомушское'
         assert result == answer
+

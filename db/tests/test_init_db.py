@@ -3,7 +3,7 @@ from db.model import Base, Sites, Plots, Taxation, Species, Trees, Defects, Heig
 from datetime import date
 
 
-class SetupBase:
+class FullBase:
     def setup(self):
         # Создаём суслика
         engine = sqlalchemy.create_engine(f'sqlite:///:memory:', echo=False)
@@ -22,11 +22,11 @@ class SetupBase:
         plot3 = Plots(id_site=1, TLU='В4', forest_type='ДЛ', number=3, area=600)
         self.session.add_all([plot1, plot2, plot3])
         # Запись в таблие Taxation для тестов
-        tax1 = Taxation(id_site=2, name='до рубки', date=date(2010, 2, 10), vegetation_year='2010', age_after_cut=99,
+        tax1 = Taxation(id_site=2, name='до рубки', date=date(2010, 2, 10), vegetation_year=2010, age_after_cut=99,
                         quantity_plots=3, total_area=1800, trans_coef=5.555556, diameter_med=49)
-        tax2 = Taxation(id_site=2, name='после рубки', date=date(2010, 2, 10), vegetation_year='2010', age_after_cut=0,
+        tax2 = Taxation(id_site=2, name='после рубки', date=date(2010, 2, 10), vegetation_year=2010, age_after_cut=0,
                         quantity_plots=3, total_area=1800, trans_coef=5.555556, diameter_med=79)
-        tax3 = Taxation(id_site=2, name='3 года после рубки', date=date(2013, 2, 10), vegetation_year='2013', age_after_cut=3,
+        tax3 = Taxation(id_site=2, name='3 года после рубки', date=date(2013, 2, 10), vegetation_year=2013, age_after_cut=3,
                         quantity_plots=3, total_area=1800, trans_coef=5.555556, diameter_med=109)
         self.session.add_all([tax1, tax2, tax3])
         # Запись в таблие Species для тестов
@@ -91,7 +91,7 @@ class SetupBase:
         return self.session.query(table).filter(table.id == id).one()
 
 
-class TestInitTable(SetupBase):
+class TestInitTable(FullBase):
     def get_data_by_id(self, table, id):
         return super(TestInitTable, self).get_data_by_id(table, id)
 
@@ -168,7 +168,7 @@ class TestInitTable(SetupBase):
         assert result == answer
 
 
-class TestRelations(SetupBase):
+class TestRelations(FullBase):
     def get_data_by_id(self, table, id):
         return super(TestRelations, self).get_data_by_id(table, id)
 
@@ -257,7 +257,7 @@ class TestRelations(SetupBase):
         assert result == answer
 
 
-class TestFirstID(SetupBase):
+class TestFirstID(FullBase):
     def first_id(self, table):
         return self.session.query(table).all()[0].id
 
@@ -317,7 +317,7 @@ class TestFirstID(SetupBase):
         assert result == answer
 
 
-class TestRelationShep(SetupBase):
+class TestRelationShep(FullBase):
     def get_data_by_id(self, table, id):
         return super(TestRelationShep, self).get_data_by_id(table, id)
 
