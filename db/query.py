@@ -26,6 +26,7 @@ class SitesQuery:
         try:
             row = self.session.query(Sites).get(id)
             self.session.delete(row)
+            self.session.commit()
         except IntegrityError:
             self.session.rollback()
 
@@ -57,6 +58,7 @@ class SitesQuery:
             sites = self.get_all_sites_obj()
             for site in sites:
                 site.quantity_plots = site.plot.__len__()
+            self.session.commit()
         except IntegrityError:
             self.session.rollback()
 
@@ -69,6 +71,7 @@ class SitesQuery:
                     last_year = self.session.query(db_max(tax.vegetation_year)).first()[0]
                     if last_year:
                         site.last_tax = last_year
+            self.session.commit()
         except IntegrityError:
             self.session.rollback()
 
@@ -81,6 +84,19 @@ class PlotsQuery:
     def create(self, id_site, TLU, forest_type, number, area):
         try:
             self.session.add(Plots(id_site, TLU, forest_type, number, area))
+            self.session.commit()
+        except IntegrityError:
+            self.session.rollback()
+
+
+class TaxationQuery:
+    def __init__(self, session):
+        """ передача сессии """
+        self.session = session
+
+    def create(self, id_site, name, date, vegetation_year, age_after_cut, quantity_plots, total_area, trans_coef, diameter_med):
+        try:
+            self.session.add(Taxation(id_site, name, date, vegetation_year, age_after_cut, quantity_plots, total_area, trans_coef, diameter_med))
             self.session.commit()
         except IntegrityError:
             self.session.rollback()

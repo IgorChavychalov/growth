@@ -31,54 +31,65 @@ class MainWin(QWidget):
         self.line_thinning = self.window.findChild(QLineEdit, 'lineThinning')
         self.line_quantity_plots = self.window.findChild(QLineEdit, 'lineQuantityPlots')
         self.line_last_tax = self.window.findChild(QLineEdit, 'lineLastTax')
+        self.btn_show = self.window.findChild(QPushButton, 'btnShow')
+        self.btn_create = self.window.findChild(QPushButton, 'btnCreate')
+        self.btn_delete = self.window.findChild(QPushButton, 'btnDelete')
 
         # задаём специальные размеров колонок
         self.sites_table.setColumnWidth(0, 140)
         self.sites_table.setColumnWidth(1, 80)
 
         # параметры
-        self.sites_list = []
+        self.sites_list: list
+        self.selected_site: int
         self.initUT()
 
     def initUT(self):
         self.sites_table.itemClicked.connect(self.set_site_info)
+        self.btn_delete.clicked.connect(self.delete_site)
+
         self.update_extra_fields()
-        self.get_sites_info()
-        self.fill_table()
+        self.update_sites_table()
         self.window.show()
 
     def set_site_info(self):
-        result = self.get_selected_row()
-        self.update_site_info(result)
+        self.set_selected_row()
+        site_info = self.get_site_info()
+        self.update_site_info(site_info)
 
-    def get_selected_row(self):
+    def get_site_info(self):
+        site_info = self.sites_list[self.selected_site]
+        return list(map(str, site_info))
+
+    def set_selected_row(self):
         index = sorted(self.sites_table.selectedIndexes())
-        result = int(index[0].row())
-        site_info = self.sites_list[result]
-        return site_info
+        self.selected_site = int(index[0].row())
 
     def update_site_info(self, site_info):
-        site_info = list(map(str, site_info))
-        self.line_forestry.setText(site_info[0])
-        self.line_kvartal.setText(site_info[1])
-        self.line_vydel.setText(site_info[2])
-        self.line_clearcut.setText(site_info[3])
-        self.line_planting.setText(site_info[4])
-        self.line_thinning.setText(site_info[5])
-        self.line_quantity_plots.setText(site_info[6])
-        self.line_last_tax.setText(site_info[7])
+        self.line_forestry.setText(site_info[1])
+        self.line_kvartal.setText(site_info[2])
+        self.line_vydel.setText(site_info[3])
+        self.line_clearcut.setText(site_info[4])
+        self.line_planting.setText(site_info[5])
+        self.line_thinning.setText(site_info[6])
+        self.line_quantity_plots.setText(site_info[7])
+        self.line_last_tax.setText(site_info[8])
 
     def update_extra_fields(self):
         sites.set_last_tax()
         sites.set_quantity_plots()
 
-    def get_sites_info(self):
+    def set_sites_info(self):
         self.sites_list = sites.get_all_sites_list()
+
+    def update_sites_table(self):
+        self.set_sites_info()
+        self.fill_table()
 
     def fill_table(self):
         self.sites_table.setRowCount(int(0))  # удаляем строки
         for item in self.sites_list:  # пересохраняем объект таблицы в строчку
-            self.set_data_in_new_row(item[:2])
+            self.set_data_in_new_row(item[1:3])
 
     def set_data_in_new_row(self, data: list):
         rows = self.sites_table.rowCount()
@@ -87,3 +98,13 @@ class MainWin(QWidget):
         for i in range(0, columns):
             item = QtWidgets.QTableWidgetItem(str(data[i]))
             self.sites_table.setItem(rows, i, item)
+
+    def create_new_site(self):
+        pass
+
+    def delete_site(self):
+        id_site = self.sites_list[self.selected_site][0]
+        sites.delete(id_site)
+        self.update_sites_table()
+        self.update_site_info([None, None, None, None, None, None, None, None, None])
+        self.selected_site = 0

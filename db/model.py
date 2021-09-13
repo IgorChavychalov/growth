@@ -40,7 +40,7 @@ class Sites(Base):
                f' {self.quantity_plots}; {self.last_tax}'
 
     def __str__(self):
-        return [self.forestry, self.kvartal, self.vydel, self.clearcut, self.planting, self.thinning, self.quantity_plots, self.last_tax]
+        return [self.id, self.forestry, self.kvartal, self.vydel, self.clearcut, self.planting, self.thinning, self.quantity_plots, self.last_tax]
 
 
 class Plots(Base):
