@@ -2,7 +2,8 @@ import os
 
 from PySide6 import QtWidgets
 from PySide6.QtUiTools import QUiLoader
-from PySide6.QtWidgets import QPushButton, QLineEdit, QWidget, QComboBox, QDateEdit, QTextEdit, QTableWidget, QTableWidgetItem
+from PySide6.QtWidgets import QPushButton, QLineEdit, QWidget, QComboBox, QDateEdit, QTextEdit, QTableWidget,\
+    QTableWidgetItem, QMessageBox
 from PySide6.QtCore import QFile, QDate, Slot
 
 from db.connect import Connect
@@ -10,6 +11,18 @@ from db.query import SitesQuery
 
 session = Connect().get_session()
 sites = SitesQuery(session)
+
+
+def show_warning_dialog(info: str) -> int:
+    warning = QMessageBox()
+    warning.setIcon(QMessageBox.Information)
+    warning.setWindowTitle("Предупреждение")
+    warning.setText(info)
+    warning.setStandardButtons(QMessageBox.Cancel | QMessageBox.Yes)
+    return_value = warning.exec()
+    if return_value == warning.Yes:
+        return 1
+    return 0
 
 
 class MainWin(QWidget):
@@ -34,6 +47,11 @@ class MainWin(QWidget):
         self.btn_show = self.window.findChild(QPushButton, 'btnShow')
         self.btn_create = self.window.findChild(QPushButton, 'btnCreate')
         self.btn_delete = self.window.findChild(QPushButton, 'btnDelete')
+        self.btn_ok = self.window.findChild(QPushButton, 'btnOK')
+        self.btn_cancel = self.window.findChild(QPushButton, 'btnCancel')
+
+        self.line_list = [self.line_forestry, self.line_kvartal, self.line_vydel, self.line_clearcut,
+                          self.line_planting, self.line_thinning, self.line_quantity_plots, self.line_last_tax]
 
         # задаём специальные размеров колонок
         self.sites_table.setColumnWidth(0, 140)
@@ -41,16 +59,24 @@ class MainWin(QWidget):
 
         # параметры
         self.sites_list: list
-        self.selected_site: int
-        self.initUT()
+        self.selected_site = None
+        self.init_UI()
 
-    def initUT(self):
+    def init_UI(self):
         self.sites_table.itemClicked.connect(self.set_site_info)
         self.btn_delete.clicked.connect(self.delete_site)
+        self.btn_create.clicked.connect(self.activate_create_form)
+        self.btn_ok.clicked.connect(self.create_new_site)
+        self.btn_cancel.clicked.connect(self.close_create_form)
 
+        self.set_visible_btn_of_create_site()
         self.update_extra_fields()
         self.update_sites_table()
         self.window.show()
+
+    def set_visible_btn_of_create_site(self, enable=False):
+        self.btn_ok.setVisible(enable)
+        self.btn_cancel.setVisible(enable)
 
     def set_site_info(self):
         self.set_selected_row()
@@ -65,17 +91,24 @@ class MainWin(QWidget):
         index = sorted(self.sites_table.selectedIndexes())
         self.selected_site = int(index[0].row())
 
-    def update_site_info(self, site_info):
-        self.line_forestry.setText(site_info[1])
-        self.line_kvartal.setText(site_info[2])
-        self.line_vydel.setText(site_info[3])
-        self.line_clearcut.setText(site_info[4])
-        self.line_planting.setText(site_info[5])
-        self.line_thinning.setText(site_info[6])
-        self.line_quantity_plots.setText(site_info[7])
-        self.line_last_tax.setText(site_info[8])
+    def update_site_info(self, site_info, enable=False):
+        for i in range(8):
+            self.line_list[i].setText(site_info[i])
+            if enable and i < 6:
+                self.line_list[i].setEnabled(True)
 
-    def update_extra_fields(self):
+    def get_info_from_site_list(self):
+        result = []
+        for i in range(6):
+            elem = self.line_list[i].text()
+            if elem:
+                result.append(elem)
+            else:
+                result.append(0)
+        return result
+
+    @staticmethod
+    def update_extra_fields():
         sites.set_last_tax()
         sites.set_quantity_plots()
 
@@ -99,12 +132,46 @@ class MainWin(QWidget):
             item = QtWidgets.QTableWidgetItem(str(data[i]))
             self.sites_table.setItem(rows, i, item)
 
+    def activate_create_form(self):
+        self.update_site_info([None for i in range(8)], enable=True)
+        self.set_visible_btn_of_create_site(enable=True)
+        self.set_status_widget(disabled=True)
+
+    def close_create_form(self):
+        self.update_site_info([None for i in range(8)], enable=False)
+        self.set_visible_btn_of_create_site(enable=False)
+        self.set_status_widget(disabled=False)
+
     def create_new_site(self):
-        pass
+        confirm = self.validator_create_form()
+        if confirm:
+            info = self.get_info_from_site_list()
+            sites.create(*info)
+            self.update_sites_table()
+            self.close_create_form()
+
+    def validator_create_form(self):
+        return 1
+
+    def set_status_widget(self, disabled):
+        if disabled:
+            self.btn_show.setDisabled(True)
+            self.btn_create.setDisabled(True)
+            self.btn_delete.setDisabled(True)
+            self.sites_table.setDisabled(True)
+        else:
+            self.btn_show.setEnabled(False)
+            self.btn_create.setEnabled(False)
+            self.btn_delete.setEnabled(False)
+            self.sites_table.setEnabled(False)
 
     def delete_site(self):
-        id_site = self.sites_list[self.selected_site][0]
-        sites.delete(id_site)
-        self.update_sites_table()
-        self.update_site_info([None, None, None, None, None, None, None, None, None])
-        self.selected_site = 0
+        if self.selected_site is not None:
+            id_site = self.sites_list[self.selected_site][0]
+            confirm = show_warning_dialog("Вы уверенны в том что хотите удалить?")
+            if confirm:
+                sites.delete(id_site)
+                self.update_sites_table()
+                self.update_site_info([None for i in range(8)])
+            self.selected_site = None
+
