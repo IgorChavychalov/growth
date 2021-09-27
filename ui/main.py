@@ -44,7 +44,7 @@ class MainWin(QWidget):
         self.line_thinning = self.window.findChild(QLineEdit, 'lineThinning')
         self.line_quantity_plots = self.window.findChild(QLineEdit, 'lineQuantityPlots')
         self.line_last_tax = self.window.findChild(QLineEdit, 'lineLastTax')
-        self.btn_show = self.window.findChild(QPushButton, 'btnShow')
+        self.btn_edit = self.window.findChild(QPushButton, 'btnEdit')
         self.btn_create = self.window.findChild(QPushButton, 'btnCreate')
         self.btn_delete = self.window.findChild(QPushButton, 'btnDelete')
         self.btn_ok = self.window.findChild(QPushButton, 'btnOK')
@@ -69,18 +69,18 @@ class MainWin(QWidget):
         self.btn_ok.clicked.connect(self.create_new_site)
         self.btn_cancel.clicked.connect(self.close_create_form)
 
-        self.set_visible_btn_of_create_site()
+        self.set_visible_btn_of_create_site(visible=False)
         self.update_extra_fields()
         self.update_sites_table()
         self.window.show()
 
-    def set_visible_btn_of_create_site(self, enable=False):
-        self.btn_ok.setVisible(enable)
-        self.btn_cancel.setVisible(enable)
+    def set_visible_btn_of_create_site(self, visible: bool):
+        self.btn_ok.setVisible(visible)
+        self.btn_cancel.setVisible(visible)
 
     def set_site_info(self):
         self.set_selected_row()
-        site_info = self.get_site_info()
+        site_info = self.get_site_info()[1:]  # без ID
         self.update_site_info(site_info)
 
     def get_site_info(self):
@@ -91,11 +91,9 @@ class MainWin(QWidget):
         index = sorted(self.sites_table.selectedIndexes())
         self.selected_site = int(index[0].row())
 
-    def update_site_info(self, site_info, enable=False):
+    def update_site_info(self, site_info):
         for i in range(8):
             self.line_list[i].setText(site_info[i])
-            if enable and i < 6:
-                self.line_list[i].setEnabled(True)
 
     def get_info_from_site_list(self):
         result = []
@@ -133,37 +131,46 @@ class MainWin(QWidget):
             self.sites_table.setItem(rows, i, item)
 
     def activate_create_form(self):
-        self.update_site_info([None for i in range(8)], enable=True)
-        self.set_visible_btn_of_create_site(enable=True)
+        self.update_site_info([None for i in range(8)])
+        self.set_visible_btn_of_create_site(visible=True)
         self.set_status_widget(disabled=True)
 
     def close_create_form(self):
-        self.update_site_info([None for i in range(8)], enable=False)
-        self.set_visible_btn_of_create_site(enable=False)
+        self.update_site_info([None for i in range(8)])
+        self.set_visible_btn_of_create_site(visible=False)
         self.set_status_widget(disabled=False)
 
     def create_new_site(self):
         confirm = self.validator_create_form()
         if confirm:
             info = self.get_info_from_site_list()
-            sites.create(*info)
+            sites.create(forestry=info[0], kvartal=info[1], vydel=info[2],
+                         clearcut=info[3], planting=info[4], thinning=info[5])
             self.update_sites_table()
             self.close_create_form()
 
     def validator_create_form(self):
         return 1
 
-    def set_status_widget(self, disabled):
+    def set_status_widget(self, disabled: bool):
         if disabled:
-            self.btn_show.setDisabled(True)
+            self.btn_edit.setDisabled(True)
             self.btn_create.setDisabled(True)
             self.btn_delete.setDisabled(True)
             self.sites_table.setDisabled(True)
+            for elem in range(6):
+                self.line_list[elem].setEnabled(True)
         else:
-            self.btn_show.setEnabled(False)
-            self.btn_create.setEnabled(False)
-            self.btn_delete.setEnabled(False)
-            self.sites_table.setEnabled(False)
+            self.set_placeholders()
+            self.btn_edit.setEnabled(True)
+            self.btn_create.setEnabled(True)
+            self.btn_delete.setEnabled(True)
+            self.sites_table.setEnabled(True)
+            for elem in range(6):
+                self.line_list[elem].setDisabled(True)
+
+    def set_placeholders(self):
+        pass
 
     def delete_site(self):
         if self.selected_site is not None:

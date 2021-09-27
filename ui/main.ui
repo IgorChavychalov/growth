@@ -290,14 +290,14 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
-         <widget class="QPushButton" name="btnShow">
+         <widget class="QPushButton" name="btnEdit">
           <property name="font">
            <font>
             <pointsize>10</pointsize>
            </font>
           </property>
           <property name="text">
-           <string>Подродно</string>
+           <string>Изменить</string>
           </property>
          </widget>
         </item>
