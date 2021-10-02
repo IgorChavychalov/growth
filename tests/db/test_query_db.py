@@ -1,6 +1,6 @@
-from db.tests.test_init_db import FullBase
+from tests.db.test_init_db import FullBase
 from db.query import SitesQuery
-from db.model import Sites, Plots, Base
+from db.model import Sites
 
 
 class TestSiteQuery(FullBase):

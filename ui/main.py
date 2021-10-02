@@ -8,6 +8,7 @@ from PySide6.QtCore import QFile, QDate, Slot
 
 from db.connect import Connect
 from db.query import SitesQuery
+from ui.validator import valid_year
 
 session = Connect().get_session()
 sites = SitesQuery(session)
@@ -150,7 +151,27 @@ class MainWin(QWidget):
             self.close_create_form()
 
     def validator_create_form(self):
-        return 1
+        if self.line_forestry.text():
+            if self.line_kvartal.text():
+                clearcut = self.line_clearcut.text()
+                if clearcut:
+                    if not valid_year(clearcut):
+                        return 0
+            else:
+                return 0
+        else:
+            return 0
+
+    def valid_year_line(self, line):
+        value = line.text()
+        if value:
+            if valid_year(value):
+                return 1
+        return 0
+
+
+
+
 
     def set_status_widget(self, disabled: bool):
         if disabled:
