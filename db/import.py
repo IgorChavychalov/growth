@@ -1,6 +1,6 @@
 from datetime import date
 
-from query import SitesQuery, PlotsQuery, TaxationQuery
+from db.query import SitesQuery, PlotsQuery, TaxationQuery
 from db.connect import Connect
 
 session = Connect().get_session()

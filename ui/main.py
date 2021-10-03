@@ -142,7 +142,8 @@ class MainWin(QWidget):
         self.set_status_widget(disabled=False)
 
     def create_new_site(self):
-        confirm = self.validator_create_form()
+        valid_list = self.validator_create_form()
+        confirm = chek_valid_list(valid_list)
         if confirm:
             info = self.get_info_from_site_list()
             sites.create(forestry=info[0], kvartal=info[1], vydel=info[2],
@@ -150,28 +151,19 @@ class MainWin(QWidget):
             self.update_sites_table()
             self.close_create_form()
 
-    def validator_create_form(self):
-        if self.line_forestry.text():
-            if self.line_kvartal.text():
-                clearcut = self.line_clearcut.text()
-                if clearcut:
-                    if not valid_year(clearcut):
-                        return 0
-            else:
-                return 0
-        else:
-            return 0
+    def validator_create_form(self)-> list:
+        valid_list = []
+        for line in self.line_list:
+            if line in (self.line_forestry, self.line_kvartal):
+                valid_list.append(line.text())
+            valid_list.append(valid_year(self.line.text()))
+        return valid_list
 
     def valid_year_line(self, line):
         value = line.text()
         if value:
-            if valid_year(value):
-                return 1
-        return 0
-
-
-
-
+            return valid_year(value)
+        return None
 
     def set_status_widget(self, disabled: bool):
         if disabled:

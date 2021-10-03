@@ -1,7 +1,7 @@
 from ui.validator import *
 
 
-class TestValidYear():
+class TestValidYear:
     def test_norm_value(self):
         answer = 1
         result = valid_year('1111')
@@ -21,3 +21,9 @@ class TestValidYear():
         answer = 0
         result = valid_year('1.118')
         assert result == answer
+
+    def test_none_value(self):
+        answer = 0
+        result = valid_year(None)
+        assert result == answer
+

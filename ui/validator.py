@@ -7,4 +7,4 @@ def valid_year(value: str):
                 int(elem)
         except Exception as e:
             return 0
-        return 1
+        return int(value)
