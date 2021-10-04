@@ -2,13 +2,13 @@ import os
 
 from PySide6 import QtWidgets
 from PySide6.QtUiTools import QUiLoader
-from PySide6.QtWidgets import QPushButton, QLineEdit, QWidget, QComboBox, QDateEdit, QTextEdit, QTableWidget,\
+from PySide6.QtWidgets import QPushButton, QLineEdit, QWidget, QComboBox, QDateEdit, QTextEdit, QTableWidget, \
     QTableWidgetItem, QMessageBox
 from PySide6.QtCore import QFile, QDate, Slot
 
 from db.connect import Connect
 from db.query import SitesQuery
-from ui.validator import valid_year
+from ui.validator import validate_create_form
 
 session = Connect().get_session()
 sites = SitesQuery(session)
@@ -103,7 +103,7 @@ class MainWin(QWidget):
             if elem:
                 result.append(elem)
             else:
-                result.append(0)
+                result.append(None)
         return result
 
     @staticmethod
@@ -142,28 +142,14 @@ class MainWin(QWidget):
         self.set_status_widget(disabled=False)
 
     def create_new_site(self):
-        valid_list = self.validator_create_form()
-        confirm = chek_valid_list(valid_list)
+        input_date: list = self.get_info_from_site_list()
+        confirm = validate_create_form(input_date)
         if confirm:
-            info = self.get_info_from_site_list()
+            serial_date = serialization_create_form_date(input_date)
             sites.create(forestry=info[0], kvartal=info[1], vydel=info[2],
                          clearcut=info[3], planting=info[4], thinning=info[5])
             self.update_sites_table()
             self.close_create_form()
-
-    def validator_create_form(self)-> list:
-        valid_list = []
-        for line in self.line_list:
-            if line in (self.line_forestry, self.line_kvartal):
-                valid_list.append(line.text())
-            valid_list.append(valid_year(self.line.text()))
-        return valid_list
-
-    def valid_year_line(self, line):
-        value = line.text()
-        if value:
-            return valid_year(value)
-        return None
 
     def set_status_widget(self, disabled: bool):
         if disabled:
@@ -194,4 +180,3 @@ class MainWin(QWidget):
                 self.update_sites_table()
                 self.update_site_info([None for i in range(8)])
             self.selected_site = None
-

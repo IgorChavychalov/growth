@@ -3,7 +3,7 @@ from ui.validator import *
 
 class TestValidYear:
     def test_norm_value(self):
-        answer = 1
+        answer = 1111
         result = valid_year('1111')
         assert result == answer
 
@@ -23,7 +23,37 @@ class TestValidYear:
         assert result == answer
 
     def test_none_value(self):
-        answer = 0
+        answer = None
         result = valid_year(None)
         assert result == answer
+
+
+class TestVlideCreateForm:
+    def test_years_field(self):
+        answer = True
+        args = ['fff', '234', '12,13', '1111', '1111', '1111', '1111']
+        result = validate_create_form(args)
+
+    def test_miss_digit_years_field(self):
+        answer = False
+        args = ['fff', '234', '12,13', '1111', '111', '1111', '1111']
+        result = validate_create_form(args)
+
+    def test_miss_years_field(self):
+        answer = True
+        args = ['fff', '234', '12,13', None, None, None, None]
+        result = validate_create_form(args)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
