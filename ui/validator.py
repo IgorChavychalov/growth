@@ -1,10 +1,9 @@
 def validate_create_form(line_list: list) -> list:
     valid_list = []
     for i in range(6):
-        valid_list
         if i > 1:
             valid_year(line_list[i])
-    return
+    return valid_list
 
 
 def valid_year(value: str):
@@ -21,3 +20,4 @@ def valid_year(value: str):
         return int(value)
 
 def serialization_create_form_date(input_date: list):
+    pass

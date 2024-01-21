@@ -2,7 +2,7 @@ import os
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine, Column, Integer, String, Float, Date, ForeignKey, Boolean
+from sqlalchemy import create_engine, Column, Integer, String, Float, Date, ForeignKey, Boolean, inspect
 from sqlalchemy.orm import relationship
 
 FOLDER = os.path.dirname(os.path.abspath(__file__))
@@ -35,12 +35,26 @@ class Sites(Base):
         self.quantity_plots = 0
         self.last_tax = 0
 
-    def __repr__(self):
-        return f'{self.forestry}; {self.kvartal}; {self.vydel}; {self.clearcut}; {self.planting}; {self.thinning};' \
-               f' {self.quantity_plots}; {self.last_tax}'
+    def get_attribute(self):
+        return [self.forestry, self.kvartal, self.vydel, self.clearcut, self.planting, self.thinning,
+                self.quantity_plots, self.last_tax]
 
-    def __str__(self):
-        return [self.id, self.forestry, self.kvartal, self.vydel, self.clearcut, self.planting, self.thinning, self.quantity_plots, self.last_tax]
+    def __repr__(self):
+        return f'{self.forestry}; {self.kvartal}; {self.vydel}; {self.clearcut}; {self.planting}; {self.thinning}; ' \
+               f'{self.quantity_plots}; {self.last_tax}'
+
+    __mapper_args__ = {
+        'polymorphic_on':type,
+        'polymorphic_identity':'employee'
+    }
+
+
+
+
+
+
+
+
 
 
 class Plots(Base):
@@ -51,9 +65,9 @@ class Plots(Base):
     site = relationship("Sites", backref="plot")
     relation = relationship("Relations", backref="plot")
 
+    number = Column(Integer, nullable=False)
     TLU = Column(String)
     forest_type = Column(String)
-    number = Column(Integer, nullable=False)
     area = Column(Integer, nullable=False)
 
     def __init__(self, id_site, TLU, forest_type, number, area):
@@ -63,8 +77,11 @@ class Plots(Base):
         self.number = number
         self.area = area
 
+    def get_attribute(self):
+        return [self.number, self.area, self.TLU, self.forest_type]
+
     def __repr__(self):
-        return f'{self.id_site}; {self.TLU}; {self.forest_type}; {self.number}; {self.area}'
+        return f'{self.id_site}; {self.number}; {self.area}; {self.TLU}; {self.forest_type}'
 
 
 class Taxation(Base):
@@ -94,6 +111,10 @@ class Taxation(Base):
         self.trans_coef = trans_coef
         self.diameter_med = diameter_med
 
+    def get_attribute(self):
+        return [self.name, self.date, self.vegetation_year, self.age_after_cut, self.quantity_plots, self.total_area,
+                self.trans_coef, self.diameter_med]
+
     def __repr__(self):
         return f'{self.id_site}; {self.name}; {self.date}; {self.vegetation_year}; {self.age_after_cut}; {self.quantity_plots};' \
                f' {self.total_area}; {self.trans_coef}; {self.diameter_med}'
@@ -119,6 +140,9 @@ class Species(Base):
         self.floor = floor
         self.step_level = step_level
 
+    def get_attribute(self):
+        return [self.species, self.age, self.floor, self.step_level]
+
     def __repr__(self):
         return f'{self.id_tax}; {self.species}; {self.age}; {self.floor}; {self.step_level}'
 
@@ -130,10 +154,11 @@ class Trees(Base):
     id_tax = Column(Integer, ForeignKey('taxation.id'))
     id_plot = Column(Integer, ForeignKey('plots.id'))
     id_species = Column(Integer, ForeignKey('species.id'))
-    taxation = relationship("Taxation", backref="tree")
-    plot = relationship("Plots", backref="tree")
-    species = relationship("Species", backref="tree")
-    relation = relationship("Relations", backref="tree")
+    taxation = relationship("Taxation", backref="trees")
+    plot = relationship("Plots", backref="trees")
+    species = relationship("Species", backref="trees")
+    relation = relationship("Relations", backref="trees")
+    height = relationship("Heights", back_populates="trees")
 
     number_tree = Column(Integer)
     kraft = Column(Integer)
@@ -151,6 +176,9 @@ class Trees(Base):
         self.diameter_two = diameter_two
         self.diameter_med = diameter_med
 
+    def get_attribute(self):
+        return [self.number_tree, self.kraft, self.diameter_one, self.diameter_two, self.diameter_med]
+
     def __repr__(self):
         return f'{self.id_tax}; {self.id_plot}; {self.id_species}; {self.number_tree}; {self.kraft};' \
                f' {self.diameter_one}; {self.diameter_two}; {self.diameter_med}'
@@ -161,7 +189,7 @@ class Defects(Base):
 
     id = Column(Integer, primary_key=True)
     id_tree = Column(Integer, ForeignKey('trees.id'))
-    tree = relationship("Trees", backref="defect")
+    trees = relationship("Trees", backref="defect")
 
     info = Column(String)
     value = Column(String)
@@ -173,6 +201,9 @@ class Defects(Base):
         self.value = value
         self.age = age
 
+    def get_attribute(self):
+        return [self.info, self.value, self.age]
+
     def __repr__(self):
         return f'{self.id_tree}; {self.info}; {self.value}; {self.age}'
 
@@ -181,19 +212,32 @@ class Heights(Base):
     __tablename__ = 'heights'
 
     id = Column(Integer, primary_key=True)
-    relation = relationship("Relations", backref="height")
+    id_tree = Column(Integer, ForeignKey('trees.id'))
 
-    diameter_med = Column(Integer)
+    relation = relationship("Relations", backref="height", cascade="all, delete, delete-orphan")
+    trees = relationship("Trees", back_populates="height")
+    kraft = Column(Integer)
     height_tree = Column(Integer, nullable=False)
     height_crown = Column(Integer)
 
-    def __init__(self, diameter_med, height_tree, height_crown):
-        self.diameter_med = diameter_med
+    def __init__(self, id_tree, height_tree, height_crown):
+        self.id_tree = id_tree
         self.height_tree = height_tree
         self.height_crown = height_crown
 
+    def get_attribute(self):
+        return [self.height_tree, self.height_crown]
+
+    @property
+    def serialize(self):
+        return {
+            'id_tree': self.id_tree,
+            'height_tree': self.height_tree,
+            'height_crown': self.height_crown,
+        }
+
     def __repr__(self):
-        return f'{self.diameter_med}; {self.height_tree}; {self.height_crown}'
+        return f'{self.height_tree}; {self.height_crown}'
 
 
 class Crowns(Base):
@@ -221,6 +265,9 @@ class Crowns(Base):
         self.area = area
         self.volume = volume
 
+    def get_attribute(self):
+        return [self.length, self.north, self.south, self.west, self.east, self.diameter, self.area, self.volume]
+
     def __repr__(self):
         return f'{self.length}; {self.north}; {self.south}; {self.west}; {self.east}; {self.diameter}; {self.area}; {self.volume}'
 
@@ -230,8 +277,6 @@ class Models(Base):
 
     id = Column(Integer, primary_key=True)
     relation = relationship("Relations", backref="model")
-
-    number = Column(Integer, nullable=False)
     age = Column(Integer)
     last_grw_length = Column(Integer)
     last_grw_age = Column(Integer)
@@ -241,8 +286,7 @@ class Models(Base):
     vol_bark = Column(Float)
     vol_liquid = Column(Float)
 
-    def __init__(self, number, age, last_grw_length, last_grw_age, length_liquid, vol_wood, vol_wood_bk, vol_bark, vol_liquid):
-        self.number = number
+    def __init__(self, age, last_grw_length, last_grw_age, length_liquid, vol_wood, vol_wood_bk, vol_bark, vol_liquid):
         self.age = age
         self.last_grw_length = last_grw_length
         self.last_grw_age = last_grw_age
@@ -252,8 +296,11 @@ class Models(Base):
         self.vol_bark = vol_bark
         self.vol_liquid = vol_liquid
 
+    def get_attribute(self):
+        return [self.age, self.last_grw_length, self.last_grw_age, self.vol_wood, self.vol_wood_bk, self.vol_bark, self.vol_liquid]
+
     def __repr__(self):
-        return f'{self.number}; {self.age}; {self.last_grw_length}; {self.last_grw_age}; {self.length_liquid};' \
+        return f'{self.age}; {self.last_grw_length}; {self.last_grw_age}; {self.length_liquid};' \
                f' {self.vol_wood}; {self.vol_wood_bk}; {self.vol_bark}; {self.vol_liquid}'
 
 
@@ -281,6 +328,9 @@ class Sections(Base):
         self.diameter_we = diameter_we
         self.diameter_med = diameter_med
         self.volume = volume
+
+    def get_attribute(self):
+        return [self.section_relation, self.section_length, self.bark, self.diameter_sw, self.diameter_we, self.diameter_med, self.volume]
 
     def __repr__(self):
         return f'{self.id_model}; {self.section_relation}; {self.section_length}; {self.bark}; {self.diameter_sw};' \
@@ -315,6 +365,16 @@ class Relations(Base):
         return f'{self.id_tree}; {self.id_model}; {self.id_species}; {self.id_height}; {self.id_crown}; {self.id_plot};' \
                f' {self.kraft}; {self.step}'
 
-
 # применим изменения
 Base.metadata.create_all(engine)
+
+
+def resultToDict(result):
+    ds = []
+    for rows in result:
+        d = {}
+        for row in rows:
+            for col in row.__table__.columns:
+                d[col.name] = str(getattr(row, col.name))
+        ds.append(d)
+    return ds

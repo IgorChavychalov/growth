@@ -1,4 +1,4 @@
-from tests.db.test_init_db import FullBase
+from ..db.test_init_db import FullBase
 from db.query import SitesQuery
 from db.model import Sites
 

@@ -100,3 +100,6 @@ class TaxationQuery:
             self.session.commit()
         except IntegrityError:
             self.session.rollback()
+
+
+#  Получить

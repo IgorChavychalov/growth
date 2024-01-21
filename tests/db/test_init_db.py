@@ -1,5 +1,5 @@
 import sqlalchemy.orm
-from db.model import Base, Sites, Plots, Taxation, Species, Trees, Defects, Heights, Crowns, Models, Sections, Relations
+from ...db.model import Base, Sites, Plots, Taxation, Species, Trees, Defects, Heights, Crowns, Models, Sections, Relations
 from datetime import date
 
 
@@ -39,17 +39,21 @@ class FullBase:
         tree2 = Trees(id_tax=1, id_plot=1, id_species=1, number_tree=2, kraft=3, diameter_one=82, diameter_two=84, diameter_med=83)
         tree3 = Trees(id_tax=3, id_plot=2, id_species=2, number_tree=3, kraft=2, diameter_one=102, diameter_two=104, diameter_med=103)
         tree4 = Trees(id_tax=1, id_plot=1, id_species=3, number_tree=4, kraft=1, diameter_one=122, diameter_two=124, diameter_med=123)
-        self.session.add_all([tree1, tree2, tree3, tree4])
+        tree5 = Trees(id_tax=1, id_plot=1, id_species=3, number_tree=5, kraft=1, diameter_one=112, diameter_two=114, diameter_med=113)
+        tree6 = Trees(id_tax=1, id_plot=1, id_species=3, number_tree=6, kraft=1, diameter_one=122, diameter_two=124, diameter_med=123)
+        tree7 = Trees(id_tax=1, id_plot=1, id_species=3, number_tree='m1', kraft=1, diameter_one=122, diameter_two=124, diameter_med=123)
+        tree8 = Trees(id_tax=1, id_plot=1, id_species=3, number_tree='m2', kraft=1, diameter_one=122, diameter_two=124, diameter_med=123)
+        self.session.add_all([tree1, tree2, tree3, tree4, tree5, tree6, tree7, tree8])
         # Запись в таблие Defect для тестов
         defect = Defects(id_tree=2, info='морозобоина', value='3 см', age=2010)
         self.session.add(defect)
         # Запись в таблие Heights для тестов
-        height1 = Heights(diameter_med=63, height_tree=107, height_crown=80)
-        height2 = Heights(diameter_med=83, height_tree=127, height_crown=100)
-        height3 = Heights(diameter_med=103, height_tree=147, height_crown=120)
-        height4 = Heights(diameter_med=123, height_tree=167, height_crown=140)
-        height5 = Heights(diameter_med=80, height_tree=157, height_crown=130)
-        height6 = Heights(diameter_med=98, height_tree=167, height_crown=135)
+        height1 = Heights(id_tree=1, height_tree=107, height_crown=80)
+        height2 = Heights(id_tree=2, height_tree=127, height_crown=100)
+        height3 = Heights(id_tree=3, height_tree=147, height_crown=120)
+        height4 = Heights(id_tree=4, height_tree=167, height_crown=140)
+        height5 = Heights(id_tree=5, height_tree=157, height_crown=130)
+        height6 = Heights(id_tree=6, height_tree=167, height_crown=135)
         self.session.add_all([height1, height2, height3, height4, height5, height6])
         # Запись в таблие Crowns для тестов
         crown1 = Crowns(length=80, north=10, south=10, west=10, east=10, diameter=20, area=78, volume=200)
@@ -60,9 +64,9 @@ class FullBase:
         crown6 = Crowns(length=125, north=25, south=25, west=25, east=25, diameter=50, area=491, volume=500)
         self.session.add_all([crown1, crown2, crown3, crown4, crown5, crown6])
         # Запись в таблие Models для тестов
-        model1 = Models(number=1, age=12, last_grw_length=100, last_grw_age=5, length_liquid=80, vol_wood=100,
+        model1 = Models(age=12, last_grw_length=100, last_grw_age=5, length_liquid=80, vol_wood=100,
                        vol_wood_bk=105, vol_bark=5, vol_liquid=60)
-        model2 = Models(number=2, age=14, last_grw_length=100, last_grw_age=5, length_liquid=80, vol_wood=100,
+        model2 = Models(age=14, last_grw_length=100, last_grw_age=5, length_liquid=80, vol_wood=100,
                        vol_wood_bk=105, vol_bark=5, vol_liquid=60)
         self.session.add_all([model1, model2])
         # Запись в таблие Sections для тестов
@@ -95,15 +99,15 @@ class TestInitTable(FullBase):
     def get_data_by_id(self, table, id):
         return super(TestInitTable, self).get_data_by_id(table, id)
 
-    def test_init_data_in_sites_table(self):
-        result = self.get_data_by_id(Sites, 1).__repr__()
-        answer = 'Сяськое; 184; 10; 2000; 2001; 2010'
+    def test_init_get_attribute_in_sites_table(self):
+        result = self.get_data_by_id(Sites, 1).get_attribute()
+        answer = ['Сяськое', 184, "10", 2000, 2001, 2010, 0, 0]
 
         assert result == answer
 
     def test_init_data_in_plots_table(self):
         result = self.get_data_by_id(Plots, 1).__repr__()
-        answer = '1; В2; ЧС; 1; 600'
+        answer = '1; 1; 600; В2; ЧС'
 
         assert result == answer
 
@@ -133,7 +137,7 @@ class TestInitTable(FullBase):
 
     def test_init_data_in_heights_table(self):
         result = self.get_data_by_id(Heights, 2).__repr__()
-        answer = '83; 127; 100'
+        answer = '127; 100'
 
         assert result == answer
 
@@ -145,7 +149,7 @@ class TestInitTable(FullBase):
 
     def test_init_data_in_models_table(self):
         result = self.get_data_by_id(Models, 1).__repr__()
-        answer = '1; 12; 100; 5; 80; 100.0; 105.0; 5.0; 60.0'
+        answer = '12; 100; 5; 80; 100.0; 105.0; 5.0; 60.0'
 
         assert result == answer
 
@@ -168,9 +172,9 @@ class TestInitTable(FullBase):
         assert result == answer
 
 
-class TestRelations(FullBase):
+class TestRelationsManually(FullBase):
     def get_data_by_id(self, table, id):
-        return super(TestRelations, self).get_data_by_id(table, id)
+        return super(TestRelationsManually, self).get_data_by_id(table, id)
 
     def test_relation_plots_in_sites_table(self):
         answer = 1
@@ -317,14 +321,31 @@ class TestFirstID(FullBase):
         assert result == answer
 
 
-class TestRelationShep(FullBase):
+class TestRelationShipSitesToPlot(FullBase):
     def get_data_by_id(self, table, id):
-        return super(TestRelationShep, self).get_data_by_id(table, id)
+        return super(TestRelationShipSitesToPlot, self).get_data_by_id(table, id)
 
     def test_plots_to_site(self):
         answer = 184
         plot = self.get_data_by_id(Plots, 1)
         result = plot.site.kvartal
+        assert result == answer
+
+    def test_plots_to_site_all_attribute(self):
+        answer = ['Сяськое', 184, '10', 2000, 2001, 2010, 0, 0]
+        plot = self.get_data_by_id(Plots, 1)
+        result = plot.site.get_attribute()
+        assert result == answer
+
+    def test_all_plots_in_site(self):
+        answer = [[1, 600, 'В2', 'ЧС'], [2, 600, 'С2', 'КС'], [3, 600, 'В4', 'ДЛ']]
+        site = self.get_data_by_id(Sites, 1)
+        plots = site.plot
+
+        result = []
+        for elem in plots:
+            result.append(elem.get_attribute())
+
         assert result == answer
 
     def test_site_to_plots(self):
@@ -333,10 +354,26 @@ class TestRelationShep(FullBase):
         result = site.plot[2].TLU
         assert result == answer
 
-    def test_site_to_taxation(self):
-        answer = "3 года после рубки"
+    def test_site_to_plots_all_attribute(self):
+        answer = [2, 600, 'С2', 'КС']
+        site = self.get_data_by_id(Sites, 1)
+        result = site.plot[1].get_attribute()
+        assert result == answer
+
+
+class TestRelationShipPlotToTax(FullBase):
+    def get_data_by_id(self, table, id):
+        return super(TestRelationShipPlotToTax, self).get_data_by_id(table, id)
+
+    def test_site_to_taxation_get_names(self):
+        answer = ['до рубки', 'после рубки', '3 года после рубки']
         site = self.get_data_by_id(Sites, 2)
-        result = site.taxation[2].name
+        tax = site.taxation
+
+        result = []
+        for elem in tax:
+            result.append(elem.get_attribute()[0])
+
         assert result == answer
 
     def test_taxation_to_site(self):
@@ -344,6 +381,25 @@ class TestRelationShep(FullBase):
         tax = self.get_data_by_id(Taxation, 2)
         result = tax.site.kvartal
         assert result == answer
+
+    def test_taxation_to_plot_to_site(self):
+        answer = 77
+        tax = self.get_data_by_id(Taxation, 2)
+        res = tax.plot
+        result = res.site
+
+        assert result == answer
+
+    def test_site_to_taxation(self):
+        answer = "3 года после рубки"
+        site = self.get_data_by_id(Sites, 2)
+        result = site.taxation[2].name
+        assert result == answer
+
+
+class TestRelationShipTaxToTrees(FullBase):
+    def get_data_by_id(self, table, id):
+        return super(TestRelationShipTaxToTrees, self).get_data_by_id(table, id)
 
     def test_taxation_to_species(self):
         answer = 13
@@ -354,38 +410,59 @@ class TestRelationShep(FullBase):
     def test_taxation_to_trees(self):
         answer = 2
         tax = self.get_data_by_id(Taxation, 3)
-        result = tax.tree[0].kraft
+        result = tax.trees[0].kraft
         assert result == answer
 
-    def test_trees_to_taxation(self):
-        answer = "3 года после рубки"
-        tree = self.get_data_by_id(Trees, 3)
-        result = tree.taxation.name
+    def test_taxation_to_trees_get_attribute(self):
+        answer = [[3, 2, 102, 104, 103]]
+        tax = self.get_data_by_id(Taxation, 3)
+        trees = tax.trees
+        result = []
+        for elem in trees:
+            result.append(elem.get_attribute())
+
         assert result == answer
 
-    def test_trees_to_plot(self):
-        answer = "С2"
-        tree = self.get_data_by_id(Trees, 3)
-        result = tree.plot.TLU
-        assert result == answer
 
-    def test_trees_to_species(self):
-        answer = 11
-        tree = self.get_data_by_id(Trees, 3)
-        result = tree.species.age
-        assert result == answer
+class TestRelationShipTreesToAll(FullBase):
+    def get_data_by_id(self, table, id):
+        return super(TestRelationShipTreesToAll, self).get_data_by_id(table, id)
 
     def test_trees_to_defects(self):
         answer = "морозобоина"
-        tree = self.get_data_by_id(Trees, 2)
-        result = tree.defect[0].info
+        trees = self.get_data_by_id(Trees, 2)
+        result = trees.defect[0].info
+        assert result == answer
+
+    def test_trees_to_height(self):
+        answer = [127, 100]
+        trees = self.get_data_by_id(Trees, 2)
+        result = list(trees.height)
         assert result == answer
 
     def test_defects_to_trees(self):
         answer = 3
         defect = self.get_data_by_id(Defects, 1)
-        result = defect.tree.kraft
+        result = defect.trees.kraft
         assert result == answer
+
+    def test_height(self):
+        answer = '107; 80'
+        result = self.get_data_by_id(Heights, 1)
+
+        assert result == answer
+
+
+
+
+
+
+
+
+class TestRelationShep(FullBase):
+    def get_data_by_id(self, table, id):
+        return super(TestRelationShep, self).get_data_by_id(table, id)
+
 
     def test_sections_to_models(self):
         answer = 14
@@ -402,7 +479,7 @@ class TestRelationShep(FullBase):
     def test_relations_to_tree(self):
         answer = 4
         rel = self.get_data_by_id(Relations, 1)
-        result = rel.tree.kraft
+        result = rel.trees.kraft
         assert result == answer
 
     def test_relations_to_model(self):

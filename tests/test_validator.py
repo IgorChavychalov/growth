@@ -1,4 +1,4 @@
-from ui.validator import *
+from ..ui.validator import *
 
 
 class TestValidYear:

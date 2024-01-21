@@ -9,3 +9,4 @@ if __name__ == "__main__":
     app = QApplication(argv)
     window = MainWin(path.join('ui', 'main.ui'))
     exit(app.exec())
+
